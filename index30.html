@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraSeed | The Complete Expo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(-45deg, #f0fdf4, #fdfcf8, #fff7ed, #f1f5f9);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .cart-sidebar { transform: translateX(100%); transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .cart-sidebar.open { transform: translateX(0); }
+
+        .slide { display: none; }
+        .slide.active { display: block; animation: fade 0.8s ease-in-out; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+        .star-active { color: #fbbf24; fill: #fbbf24; }
+
+        /* --- ADDED: Hover Overlay Styles from seed2.html --- */
+        .detail-overlay { 
+            position: absolute; inset: 0; 
+            background: rgba(45, 106, 79, 0.94); color: white; padding: 20px; 
+            opacity: 0; transition: 0.3s; z-index: 20; display: flex; 
+            flex-direction: column; justify-content: center; align-items: center; 
+            text-align: center; pointer-events: none;
+        }
+        .group:hover .detail-overlay { opacity: 1; pointer-events: all; }
+
+        .btn-buy-overlay { 
+            background: #fb641b; color: white; border: none; padding: 10px 20px; 
+            border-radius: 10px; font-weight: 700; cursor: pointer; margin-bottom: 10px; 
+            width: 85%; font-size: 11px; text-transform: uppercase;
+        }
+        .btn-buy-overlay:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body class="pt-24">
+
+    <div id="cartSide" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white z-[110] shadow-2xl cart-sidebar flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center bg-emerald-900 text-white">
+            <h2 class="text-xl font-bold">Your Basket</h2>
+            <button onclick="toggleCart()" class="text-3xl hover:text-red-300 transition">&times;</button>
+        </div>
+        <div id="cartList" class="flex-1 overflow-y-auto p-6 space-y-4">
+            <p class="text-stone-400 italic text-center py-10">Your basket is currently empty.</p>
+        </div>
+        <div class="p-6 border-t bg-stone-50 space-y-3">
+            <div class="flex justify-between text-stone-600"><span>Subtotal:</span><span id="subtotal">$0.00</span></div>
+            <div class="flex justify-between font-bold text-lg text-emerald-900"><span>Total:</span><span id="total">$0.00</span></div>
+            <button class="w-full bg-emerald-800 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition active:scale-95">Checkout Now</button>
+        </div>
+    </div>
+
+    <nav class="fixed top-0 w-full z-[100] px-6 py-4 glass">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-10">
+                <h1 class="text-2xl font-bold text-emerald-900 tracking-tighter">TERRASEED</h1>
+                <div class="hidden lg:flex gap-8 text-sm font-semibold text-stone-500 uppercase tracking-widest">
+                    <a href="#" class="hover:text-emerald-700 transition">Home</a>
+                    <div class="relative group">
+                        <button class="flex items-center gap-1 hover:text-emerald-700 transition">Categories ▼</button>
+                        <div class="absolute top-full left-0 hidden group-hover:block w-48 bg-white shadow-xl rounded-xl p-2 mt-2 border">
+                            <button onclick="filterType('veg')" class="w-full text-left p-3 hover:bg-emerald-50 rounded-lg">Vegetables</button>
+                            <button onclick="filterType('fruit')" class="w-full text-left p-3 hover:bg-emerald-50 rounded-lg">Fruits</button>
+                            <hr class="my-1">
+                            <button onclick="filterType('all')" class="w-full text-left p-3 hover:bg-stone-50 rounded-lg font-bold">Show All</button>
+                        </div>
+                    </div>
+                    <a href="#" class="hover:text-emerald-700 transition">Contact</a>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <input id="searchInput" onkeyup="searchItems()" type="text" placeholder="Search variety..." class="bg-white/50 border border-stone-200 rounded-full px-5 py-2 text-xs focus:ring-2 focus:ring-emerald-500/20 w-40 lg:w-64 transition-all outline-none">
+                </div>
+                <button onclick="toggleCart()" class="bg-emerald-900 text-white px-6 py-2.5 rounded-full text-xs font-bold hover:scale-105 transition active:scale-95">
+                    Cart (<span id="cartCount">0</span>)
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="max-w-7xl mx-auto px-6 mb-16">
+        <div class="relative h-[400px] rounded-[3rem] overflow-hidden shadow-xl border-4 border-white">
+            <div class="slide active h-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=1600')">
+                <div class="absolute inset-0 bg-black/30 flex items-center p-12 text-white">
+                    <div>
+                        <span class="bg-emerald-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase mb-4 inline-block">New Arrival</span>
+                        <h2 class="text-5xl font-bold mb-4">Spring Heirloom<br>Cherry Collection</h2>
+                        <button class="bg-white text-emerald-900 px-8 py-3 rounded-full font-bold shadow-lg">Discover More</button>
+                    </div>
+                </div>
+            </div>
+            <div class="slide h-full bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1592419044706-39796d40f98c?w=1600')">
+                <div class="absolute inset-0 bg-black/40 flex items-center p-12 text-white">
+                    <div>
+                        <h2 class="text-5xl font-bold mb-4">Exotic Fruit<br>Seeds 2026</h2>
+                        <button class="bg-emerald-500 text-white px-8 py-3 rounded-full font-bold shadow-lg">Shop Fruits</button>
+                    </div>
+                </div>
+            </div>
+            <button onclick="moveSlide(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 glass rounded-full flex items-center justify-center">❮</button>
+            <button onclick="moveSlide(1)" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 glass rounded-full flex items-center justify-center">❯</button>
+        </div>
+    </section>
+
+    <main class="max-w-7xl mx-auto px-6 pb-20">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h3 class="text-4xl font-bold text-stone-800">Expo Products</h3>
+                <p class="text-stone-500 mt-2">Quality varieties curated for sustainable gardens.</p>
+            </div>
+        </div>
+
+        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            </div>
+    </main>
+
+    <script>
+        const products = [
+            { id: 1, type: 'veg', name: 'Sungold Cherry', price: 15.50, img: 'https://images.unsplash.com/photo-1592419044706-39796d40f98c?w=400', info: 'Orange, super-sweet cherry variety.' },
+            { id: 2, type: 'veg', name: 'Black Krim', price: 18.20, img: 'https://images.unsplash.com/photo-1546473587-b3822da91e64?w=400', info: 'Dark, smoky Ukrainian heirloom.' },
+            { id: 3, type: 'veg', name: 'Nantes Carrot', price: 12.00, img: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400', info: 'Classic coreless, sweet crunch.' },
+            { id: 4, type: 'veg', name: 'Purple Dragon', price: 15.50, img: 'https://images.unsplash.com/photo-1590502593747-42a996133562?w=400', info: 'Vibrant purple skin, orange core.' },
+            { id: 5, type: 'veg', name: 'Bell King Pepper', price: 22.00, img: 'https://images.unsplash.com/photo-1566121333159-07380926c07a?w=400', info: 'Huge, blocky sweet fruits.' },
+            { id: 6, type: 'veg', name: 'Lacinato Kale', price: 14.00, img: 'https://images.unsplash.com/photo-1524179524541-4416a0413d11?w=400', info: 'Italian "Dinosaur" heirloom kale.' },
+            { id: 7, type: 'veg', name: 'Habanero Red', price: 13.00, img: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=400', info: 'Intense heat with fruity undertones.' },
+            { id: 8, type: 'veg', name: 'Roma Paste', price: 19.50, img: 'https://images.unsplash.com/photo-1591130901618-3f034293e620?w=400', info: 'Meaty tomato perfect for sauce.' },
+            { id: 9, type: 'veg', name: 'Curly Kale', price: 11.50, img: 'https://images.unsplash.com/photo-1524179524541-4416a0413d11?w=400', info: 'Classic hardy green superfood.' },
+            { id: 10, type: 'veg', name: 'French Radish', price: 9.00, img: 'https://images.unsplash.com/photo-1590502593747-42a996133562?w=400', info: 'Bicolored long radishes.' },
+            { id: 11, type: 'fruit', name: 'Alpine Berry', price: 32.00, img: 'https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?w=400', info: 'Gourmet wild strawberries.' },
+            { id: 12, type: 'fruit', name: 'Fall Gold', price: 45.00, img: 'https://images.unsplash.com/photo-1615485500704-8e990f3900f7?w=400', info: 'Sweetest golden raspberry.' },
+            { id: 13, type: 'fruit', name: 'Duke Blueberry', price: 38.00, img: 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=400', info: 'Early season, high yield.' },
+            { id: 14, type: 'fruit', name: 'Sugar Baby', price: 24.00, img: 'https://images.unsplash.com/photo-1589927986089-35812388d1f4?w=400', info: 'Compact icebox watermelon.' },
+            { id: 15, type: 'fruit', name: 'Mission Fig', price: 55.00, img: 'https://images.unsplash.com/photo-1589182397057-b84450de739e?w=400', info: 'Rich, honey-like fig flavor.' },
+            { id: 16, type: 'fruit', name: 'Heritage Red', price: 42.00, img: 'https://images.unsplash.com/photo-1543528176-61b2395143a4?w=400', info: 'Classic everbearing raspberry.' },
+            { id: 17, type: 'fruit', name: 'Honey Melon', price: 26.00, img: 'https://images.unsplash.com/photo-1571575173700-afb9492e6a50?w=400', info: 'Aromatic, juicy heirloom flesh.' },
+            { id: 18, type: 'fruit', name: 'Wild Blackberry', price: 35.00, img: 'https://images.unsplash.com/photo-1464960320293-d4291040455f?w=400', info: 'Robust, native forest variety.' },
+            { id: 19, type: 'fruit', name: 'Everbearing', price: 21.00, img: 'https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?w=400', info: 'Berries all summer long.' },
+            { id: 20, type: 'fruit', name: 'Lemon Cucumber', price: 16.00, img: 'https://images.unsplash.com/photo-1591130901618-3f034293e620?w=400', info: 'Round, yellow, citrusy bite.' }
+        ];
+
+        let cart = [];
+
+        function render(list = products) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = list.map(p => `
+                <div class="glass p-3 rounded-[2.5rem] hover:scale-105 transition-all duration-500 group relative">
+                    <div class="relative h-44 rounded-[2rem] overflow-hidden mb-4">
+                        
+                        <div class="detail-overlay">
+                            <button class="btn-buy-overlay" onclick="alert('Instant Buying ${p.name}...')">INSTANT BUY</button>
+                            <p style="font-size:11px; font-weight:500;">Germination: 99%<br>Requirement: Full Sun</p>
+                        </div>
+
+                        <img src="${p.img}" class="w-full h-full object-cover">
+                        
+                        <button onclick="toggleWish(this)" class="absolute top-3 left-3 bg-white/90 p-2 rounded-full shadow-lg text-stone-300 hover:text-red-500 transition-colors z-[30]">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        </button>
+                        <button onclick="alert('${p.info}')" class="absolute top-3 right-3 bg-white/90 p-2 rounded-full shadow-lg hover:bg-emerald-50 text-emerald-800 z-[30]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </button>
+                    </div>
+                    <div class="px-3">
+                        <h4 class="font-bold text-stone-800 text-sm truncate">${p.name}</h4>
+                        
+                        <div class="flex gap-1 my-2">
+                            ${[1,2,3,4,5].map(s => `<svg class="w-3 h-3 ${s<=4 ? 'star-active' : 'text-stone-300'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`).join('')}
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-emerald-800 font-bold">$${p.price.toFixed(2)}</span>
+                            
+                            <div class="flex gap-1">
+                                <button onclick="addToCart(${p.id})" class="bg-stone-100 p-2 rounded-lg hover:bg-emerald-100 transition"><svg class="w-3 h-3 text-emerald-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button>
+                                <button onclick="alert('Buying ${p.name}...')" class="bg-emerald-900 text-white text-[10px] px-3 py-1.5 rounded-lg hover:bg-emerald-800 transition">Buy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleCart() { document.getElementById('cartSide').classList.toggle('open'); }
+
+        function addToCart(id) {
+            const item = products.find(p => p.id === id);
+            cart.push(item);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const list = document.getElementById('cartList');
+            const sub = document.getElementById('subtotal');
+            const tot = document.getElementById('total');
+            const count = document.getElementById('cartCount');
+
+            count.innerText = cart.length;
+            const totalVal = cart.reduce((s, i) => s + i.price, 0);
+            sub.innerText = `$${totalVal.toFixed(2)}`;
+            tot.innerText = `$${totalVal.toFixed(2)}`;
+
+            if(cart.length === 0) {
+                list.innerHTML = `<p class="text-stone-400 italic text-center py-10">Empty.</p>`;
+            } else {
+                list.innerHTML = cart.map((i, index) => `
+                    <div class="flex justify-between items-center bg-stone-50 p-4 rounded-2xl border">
+                        <div><p class="font-bold text-xs">${i.name}</p><p class="text-[10px] text-emerald-700">$${i.price.toFixed(2)}</p></div>
+                        <button onclick="removeItem(${index})" class="text-stone-300 hover:text-red-500">&times;</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function searchItems() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            render(products.filter(p => p.name.toLowerCase().includes(val)));
+        }
+
+        function filterType(t) {
+            render(t === 'all' ? products : products.filter(p => p.type === t));
+        }
+
+        function toggleWish(btn) {
+            btn.classList.toggle('text-red-500');
+            btn.classList.toggle('text-stone-300');
+        }
+
+        let cur = 0;
+        function moveSlide(dir) {
+            const s = document.querySelectorAll('.slide');
+            s[cur].classList.remove('active');
+            cur = (cur + dir + s.length) % s.length;
+            s[cur].classList.add('active');
+        }
+        setInterval(() => moveSlide(1), 5000);
+
+        render();
+    </script>
+</body>
+</html>

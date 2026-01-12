@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aetheria OS v5.0 | Botanical Genetics India</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #10b981; --bg: #020617; --gold: #fbbf24; }
+        body { background: var(--bg); color: white; font-family: 'Space Grotesk', sans-serif; }
+        
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+        .buy-btn { background: linear-gradient(135deg, #10b981 0%, #065f46 100%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .buy-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
+
+        /* Smooth Drawer */
+        #cart-drawer, #checkout-modal { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .active { transform: translateX(0) !important; opacity: 1 !important; pointer-events: auto !important; }
+
+        /* Floating Animation */
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .seed-icon { animation: float 4s ease-in-out infinite; }
+
+        /* Lab-Mode Switch */
+        .lab-mode-card { border-left: 4px solid var(--accent); background: rgba(16, 185, 129, 0.05); }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+<div id="checkout-modal" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 opacity-0 pointer-events-none px-4">
+    <div class="glass w-full max-w-lg p-8 rounded-[40px] border-emerald-500/30">
+        <h2 class="text-3xl font-bold mb-6 italic">Secure Transmission</h2>
+        <div class="space-y-4">
+            <input type="text" placeholder="Full Delivery Name" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-emerald-500">
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" placeholder="PIN Code" class="bg-white/5 border border-white/10 p-4 rounded-2xl outline-none">
+                <select class="bg-white/5 border border-white/10 p-4 rounded-2xl outline-none text-gray-400">
+                    <option>Select State</option>
+                    <option>Maharashtra</option><option>Delhi</option><option>Karnataka</option>
+                </select>
+            </div>
+            <div class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex justify-between items-center">
+                <span>Pay via UPI (GPay/PhonePe)</span>
+                <span class="text-xl font-bold">₹<span id="checkout-total">0</span></span>
+            </div>
+            <button onclick="alert('Genetic Transfer Initiated!')" class="w-full buy-btn py-5 rounded-2xl font-black tracking-widest uppercase">Confirm & Pay</button>
+            <button onclick="toggleModal('checkout-modal')" class="w-full text-xs text-gray-500 uppercase tracking-widest mt-2">Abort Transaction</button>
+        </div>
+    </div>
+</div>
+
+<nav class="fixed top-0 w-full z-50 glass py-5 px-6 md:px-12 flex justify-between items-center border-b border-white/5">
+    <div class="flex items-center gap-12">
+        <div class="flex flex-col cursor-pointer">
+            <span class="text-2xl font-black tracking-tighter text-emerald-500 italic">AETHERIA.IN</span>
+            <span class="text-[9px] text-gray-500 font-mono tracking-widest">BOTANICAL INTELLIGENCE</span>
+        </div>
+        <div class="hidden xl:flex gap-8">
+            <a href="#" class="text-xs font-bold uppercase hover:text-emerald-400 transition">Monsoon Prep</a>
+            <a href="#" class="text-xs font-bold uppercase hover:text-emerald-400 transition">Himalayan Flora</a>
+            <a href="#" class="text-xs font-bold uppercase hover:text-emerald-400 transition">Soil Testing</a>
+            <a href="#" class="text-xs font-bold uppercase text-amber-500 transition">Genesis Vault</a>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-6">
+        <div class="hidden md:flex flex-col text-right">
+            <span class="text-[10px] text-emerald-500 font-bold">SOIL STATUS: ALKALINE</span>
+            <span class="text-[9px] text-gray-500 uppercase">Location: India Central</span>
+        </div>
+        <button onclick="toggleCart()" class="relative p-3 glass rounded-2xl border-emerald-500/20 hover:bg-emerald-500/10 transition">
+            <span id="cart-count" class="absolute -top-1 -right-1 bg-emerald-500 text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+            🛒
+        </button>
+    </div>
+</nav>
+
+<main class="pt-32 pb-20 px-6 md:px-12 max-w-[1600px] mx-auto">
+    
+    <section class="mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
+        <div>
+            <h1 class="text-6xl font-black mb-4 uppercase italic leading-none">The Future <br><span class="text-emerald-500">Is Growing.</span></h1>
+            <p class="text-gray-400 max-w-md">Access premium genetic archives delivered across India in 48 hours.</p>
+        </div>
+        <div class="flex gap-4 p-2 glass rounded-3xl">
+            <button class="px-6 py-3 rounded-2xl bg-emerald-600 text-xs font-bold uppercase">All Seeds</button>
+            <button class="px-6 py-3 rounded-2xl hover:bg-white/5 text-xs font-bold uppercase transition">Indoor Lab</button>
+            <button class="px-6 py-3 rounded-2xl hover:bg-white/5 text-xs font-bold uppercase transition">Commercial</button>
+        </div>
+    </section>
+
+    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        </div>
+</main>
+
+<div id="cart-drawer" class="fixed right-0 top-0 h-full w-full md:w-[450px] glass z-[150] translate-x-full p-10 flex flex-col">
+    <div class="flex justify-between items-center mb-12">
+        <h2 class="text-2xl font-black uppercase italic">Genetic Vault</h2>
+        <button onclick="toggleCart()" class="text-gray-500 hover:text-white">CLOSE ✕</button>
+    </div>
+    <div id="cart-items" class="flex-1 overflow-y-auto space-y-6 pr-4"></div>
+    <div class="pt-8 border-t border-white/10 mt-6">
+        <div class="flex justify-between items-end mb-8">
+            <span class="text-gray-500 uppercase text-xs font-bold">Total Investment</span>
+            <span class="text-4xl font-black">₹<span id="cart-total">0</span></span>
+        </div>
+        <button onclick="openCheckout()" class="w-full buy-btn py-5 rounded-[20px] font-black text-sm uppercase tracking-widest">
+            Execute Order
+        </button>
+    </div>
+</div>
+
+<script>
+    const seeds = [
+        { id: 1, name: 'Himalayan Blue Moss', cat: 'Biolum', price: 1450, img: '💠', zone: 'High Altitude' },
+        { id: 2, name: 'Monsoon Rice v4', cat: 'Grain', price: 899, img: '🌾', zone: 'Tropical' },
+        { id: 3, name: 'Kashmir Saffron Pro', cat: 'Rare', price: 3200, img: '🌸', zone: 'Arid' },
+        { id: 4, name: 'Vedic Tulsi Shield', cat: 'Medicinal', price: 350, img: '🌿', zone: 'All-Weather' },
+        { id: 5, name: 'Desert Rose Carbon', cat: 'Succulent', price: 1800, img: '🌹', zone: 'Dry' },
+        { id: 6, name: 'Naga Viper Chilli', cat: 'Heat', price: 299, img: '🌶️', zone: 'Humidity' },
+        { id: 7, name: 'Oxygen Bamboo', cat: 'Fast', price: 1200, img: '🎍', zone: 'Indoor' },
+        { id: 8, name: 'Glow Orchid', cat: 'Biolum', price: 2400, img: '🌺', zone: 'Indoor Lab' }
+    ];
+
+    let cart = [];
+
+    function renderProducts() {
+        const grid = document.getElementById('product-grid');
+        grid.innerHTML = seeds.map(s => `
+            <div class="glass p-8 rounded-[40px] flex flex-col group relative hover:border-emerald-500/40 transition-all duration-500">
+                <div class="absolute top-6 right-8 text-[10px] font-mono text-emerald-500/50">${s.zone}</div>
+                <div class="text-7xl mb-10 seed-icon flex justify-center">${s.img}</div>
+                <div class="flex-1">
+                    <span class="text-[10px] font-black uppercase text-emerald-500 tracking-widest mb-2 block">${s.cat}</span>
+                    <h3 class="text-2xl font-bold mb-4 tracking-tight">${s.name}</h3>
+                </div>
+                <div class="mt-8 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-bold">Unit Price</p>
+                        <p class="text-2xl font-black italic">₹${s.price.toLocaleString('en-IN')}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="addToCart(${s.id})" class="p-4 rounded-2xl glass hover:bg-white/10 transition">🛒</button>
+                        <button onclick="instantBuy(${s.id})" class="buy-btn px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function toggleCart() { document.getElementById('cart-drawer').classList.toggle('active'); }
+    function toggleModal(id) { document.getElementById(id).classList.toggle('active'); }
+
+    function addToCart(id) {
+        const item = seeds.find(s => s.id === id);
+        cart.push(item);
+        updateUI();
+    }
+
+    function instantBuy(id) {
+        addToCart(id);
+        openCheckout();
+    }
+
+    function openCheckout() {
+        document.getElementById('checkout-total').innerText = document.getElementById('cart-total').innerText;
+        toggleModal('checkout-modal');
+    }
+
+    function updateUI() {
+        const drawer = document.getElementById('cart-items');
+        document.getElementById('cart-count').innerText = cart.length;
+        
+        drawer.innerHTML = cart.map((item, i) => `
+            <div class="flex justify-between items-center p-5 bg-white/5 rounded-3xl border border-white/5">
+                <div class="flex items-center gap-4">
+                    <span class="text-3xl">${item.img}</span>
+                    <div>
+                        <p class="font-bold text-sm">${item.name}</p>
+                        <p class="text-emerald-500 text-xs font-mono">₹${item.price}</p>
+                    </div>
+                </div>
+                <button onclick="removeFromCart(${i})" class="text-[10px] text-red-500 font-bold">REMOVE</button>
+            </div>
+        `).join('');
+
+        const total = cart.reduce((a, b) => a + b.price, 0);
+        document.getElementById('cart-total').innerText = total.toLocaleString('en-IN');
+    }
+
+    function removeFromCart(i) {
+        cart.splice(i, 1);
+        updateUI();
+    }
+
+    renderProducts();
+</script>
+
+</body>
+</html>
